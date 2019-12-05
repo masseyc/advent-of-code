@@ -84,6 +84,8 @@ int main()
   vector *line1 = malloc(LINE_SIZE * sizeof(vector));
   vector *line2 = malloc(LINE_SIZE * sizeof(vector));
   pos    *circuit = (pos*) malloc(CIRCUIT_SIZE * sizeof(pos));;
+
+//Initiilise structs
   for(int q = 0; q < CIRCUIT_SIZE;q++) {
     circuit[q].x = 0;
     circuit[q].y = 0;
@@ -99,6 +101,7 @@ int main()
 //    line2[s].direction = "X";
   }
 
+//parse put raw data to vectors, once for each line
   if(tokens) {
     int i;
     for (i = 0; *(tokens + i); i++)
@@ -163,6 +166,8 @@ int main()
   int j;
   int gridx = 0;
   int gridy = 0;
+
+// Calulate every point on the lines that are occupied
 
   int i = 0;
   for(j=0; j < LINE_SIZE; j++) {
@@ -251,6 +256,9 @@ int main()
   int k = 0;
   j = 0;
   int min = 11010;
+
+//attempts to print out whole grid for testing
+
 /*  for(int p = 0; p < ) {
       if(grid[l][k] == 'A')
         printf("A");
@@ -260,6 +268,7 @@ int main()
         printf("+");
       else
         printf(".");*/
+
 int minx = 0;
 int maxx = 0;
 int miny = 0;
@@ -301,6 +310,8 @@ while(a < 1000){
 */
 k = 0;
 j = 0;
+
+// Search whole thing for minimum crossing point
   while(k < CIRCUIT_SIZE) {
       //printf("x: %c\n", grid[k][l]);
   //       printf("Total: %i\n", circuit[k].value);
