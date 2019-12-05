@@ -65,7 +65,7 @@ char** str_split(char* a_str, const char a_delim)
 
 int main()
 {
-  printf("HELLO");
+  //printf("HELLO");
 
   //char l1[] = "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51";
   char l1[] = "R75,D30,R83,U83,L12,D49,R71,U7,L72";
@@ -76,20 +76,20 @@ int main()
   //char l2[] = "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7";
   //char l2[] = "L990,D248,L833,U137,L556,U943,R599,U481,R963,U812,L825,U421,R998,D847,R377,D19,R588,D657,R197,D354,L548,U849,R30,D209,L745,U594,L168,U5,L357,D135,R94,D686,R965,U838,R192,U428,L861,U354,R653,U543,L633,D508,R655,U575,R709,D53,L801,D709,L92,U289,L466,D875,R75,D448,R576,D972,L77,U4,L267,D727,L3,D687,R743,D830,L803,D537,L180,U644,L204,U407,R866,U886,R560,D848,R507,U470,R38,D652,R806,D283,L836,D629,R347,D679,R609,D224,L131,D616,L687,U181,R539,D829,L598,D55,L806,U208,R886,U794,L268,D365,L145,U690,R50,D698,L140,D512,L551,U845,R351,U724,R405,D245,L324,U181,L824,U351,R223,D360,L687,D640,L653,U158,R786,D962,R931,D151,R939,D34,R610,U684,L694,D283,R402,D253,R388,D195,R732,U809,R246,D571,L820,U742,L507,U967,L886,D693,L273,U558,L914,D122,R146,U788,R83,U149,R241,U616,R326,U40,L192,D845,L577,U803,L668,D443,R705,D793,R443,D883,L715,U757,R767,D360,L289,D756,R696,D236,L525,U872,L332,U203,L152,D234,R559,U191,R340,U926,L746,D128,R867,D562,L100,U445,L489,D814,R921,D286,L378,D956,L36,D998,R158,D611,L493,U542,R932,U957,R55,D608,R790,D388,R414,U670,R845,D394,L572,D612,R842,U792,R959,U7,L285,U769,L410,D940,L319,D182,R42,D774,R758,D457,R10,U82,L861,D901,L310,D217,R644,U305,R92,U339,R252,U460,R609,D486,R553,D798,R809,U552,L183,D238,R138,D147,L343,D597,L670,U237,L878,U872,R789,U268,L97,D313,R22,U343,R907,D646,L36,D516,L808,U622,L927,D982,L810,D149,R390,U101,L565,U488,L588,U426,L386,U305,R503,U227,R969,U201,L698,D850,R800,D961,R387,U632,R543,D541,R750,D174,R543,D237,R487,D932,R220";
 
- printf("HELLO");
+
 
   tokens = str_split(l1,',');
-  const int CIRCUIT_SIZE = 1000000;
-  const int LINE_SIZE = 2000;
+  const int CIRCUIT_SIZE = 400000;
+  const int LINE_SIZE = 200000;
   vector *line1 = malloc(LINE_SIZE * sizeof(vector));
   vector *line2 = malloc(LINE_SIZE * sizeof(vector));
   pos    *circuit = (pos*) malloc(CIRCUIT_SIZE * sizeof(pos));;
 
 //Initiilise structs
-  for(int q = 0; q < CIRCUIT_SIZE;q++) {
-    circuit[q].x = 0;
-    circuit[q].y = 0;
-  }
+//  for(int q = 0; q < CIRCUIT_SIZE;q++) {
+//    circuit[q].x = 0;
+//    circuit[q].y = 0;
+//  }
 
   for(int r = 0; r < LINE_SIZE;r++) {
     line1[r].distance = 0;
@@ -154,7 +154,7 @@ int main()
     free(tokens2);
   }
 
-  printf("dir: %s\n",line1[0].direction);
+ // printf("dir: %s\n",line1[0].direction);
 //  char **grid = (char **)malloc(100000 * sizeof(char *));
 //  for(int i = 0; i < 100000; i++) {
 //    grid[i]= (char *)malloc(100000 * sizeof(char));
@@ -257,24 +257,13 @@ int main()
   j = 0;
   int min = 11010;
 
-//attempts to print out whole grid for testing
-
-/*  for(int p = 0; p < ) {
-      if(grid[l][k] == 'A')
-        printf("A");
-      else if(grid[l][k] == 'B')
-        printf("B");
-      else if(grid[l][k] == '+')
-        printf("+");
-      else
-        printf(".");*/
 
 int minx = 0;
 int maxx = 0;
 int miny = 0;
 int maxy = 0;
 int a = 0;
-  int **grid = (int **)malloc(1000 * sizeof(int *));
+/*  int **grid = (int **)malloc(1000 * sizeof(int *));
   for(int i = 0; i < 1000; i++) {
     grid[i]= (int *)malloc(1000 * sizeof(int));
     for(a = 0; a < 1000; a++) {
@@ -284,30 +273,54 @@ int a = 0;
   if(!grid){
     printf("Ooops");
     exit(0);
+  }*/
+for(int d = 0; d < CIRCUIT_SIZE; d++){
+  if (circuit[d].x < minx){
+    minx = circuit[d].x;
   }
-
-/*  while(k < CIRCUIT_SIZE) {
-    if(line1[l].direction == 'U') {
-      maxy += line1[k].distance
-    } else if(line1[l].direction == 'D') {
-      miny += line1[k].distance
-    } else if() {
-    } 
-
-    grid[circuit[k].x][circuit[k].y] = 2;
-
-    k++;
+  if(circuit[d].y < miny) {
+    miny = circuit[d].y;
   }
+  if (circuit[d].x > maxx){
+    maxx = circuit[d].x;
+  }
+  if(circuit[d].y > maxy) {
+    maxy = circuit[d].y;
+  }
+}
 
-a = 0;
-k = 0;
-while(a < 1000){
-  while(k < 1000){
-    printf("%i", grid[k][a]);
+//uncomment ot print grid
+/*
+int check = 0;
+for(int y = maxy+abs(miny)+1; y >= 0; y--) {
+  for(int x = 0; x < maxx+abs(minx)+1; x++){
+    for(int z = 0; z < CIRCUIT_SIZE; z++) {
+      if(circuit[z].x+abs(minx) == x) {
+        if(circuit[z].y+abs(miny) == y) {
+          printf("%i", circuit[z].wire);
+          check = 1;
+          break;
+        }
+      } 
+
+    }
+    if(check == 0)
+    printf(".");
+    check = 0;
   }
   printf("\n");
 }
 */
+
+a = 0;
+k = 0;
+//while(a < 1000){
+//  while(k < 1000){
+//    printf("%i", grid[k][a]);
+//  }
+//  printf("\n");
+//}
+
 k = 0;
 j = 0;
 
@@ -325,15 +338,17 @@ j = 0;
              if(circuit[k].x+circuit[k].y != 0) {
              if (circuit[k].wire == circuit[j].wire){
              } else {
-             min = circuit[k].x+circuit[k].y;
-             //printf("Total: %i\n", min);
+             min = abs(circuit[k].x)+abs(circuit[k].y);
+            printf("coords: %i %i\n", circuit[k].x, circuit[k].y);
+
+            printf("Total: %i\n", min);
              }
              }
            }
              if(circuit[k].x+circuit[k].y != 0) {
            //printf("coords: %i %i\n", circuit[k].x, circuit[k].y);
 
-           printf("Total: %i\n", abs(circuit[k].x)+abs(circuit[k].y));
+           //printf("Total: %i\n", abs(circuit[k].x)+abs(circuit[k].y));
           }
           }
         }
