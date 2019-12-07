@@ -45,7 +45,7 @@ int opcode99() {
   return 0;
 }
 
-int execute(int *program, int pc) {
+int execute(int *program, int pc, int input) {
   while(1) {
     if(pc > 300){
       break;
@@ -60,8 +60,10 @@ int execute(int *program, int pc) {
     }
     else if(program[pc]  == 2) {   
 
-        opcode2(program, program[pc+1], program[pc+2], program[pc+3]);
+      opcode2(program, program[pc+1], program[pc+2], program[pc+3]);
 
+    } else if(program[pc] == 3) {
+      opcode3(program, input, program[pc+2]);
     }
 
     pc = pc + 4;
@@ -70,9 +72,14 @@ int execute(int *program, int pc) {
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
-
+  int input;
+  if (argc > 1) {
+    input = (int) strtol(argv[1], (char **)NULL, 10);
+  } else {
+//    exit(1);
+  }
   FILE *ifp;
   char *mode = "r";
   char currentline[1000];
@@ -103,11 +110,11 @@ int main()
     backup[loop] = program[loop];
   }
 
-  for(noun = 0; noun < 100; noun++) {
-    for(verb = 0; verb < 100;verb++) {
-      program[1] = noun;
-      program[2] = verb;
-
+//  for(noun = 0; noun < 100; noun++) {
+//    for(verb = 0; verb < 100;verb++) {
+//      program[1] = noun;
+//      program[2] = verb;
+/*
   while(1) {
     if(pc > 300){
       break;
@@ -133,20 +140,17 @@ int main()
 
 
 //      printf("Result : %i\n", program[0]);
+*/
 
-      if(program[0] == 19690720) {
-          finalnoun = noun;
-          finalverb = verb;
-          noun = 100;
-          verb = 100;
-      }
+  int output = execute(program, pc, input);
+
       n_array = 0;
       for(loop = 0; loop < 300; loop++) {
         program[loop] = backup[loop];
       }
-    }
-  }
+//    }
+//  }
 
-  printf("Answer : %i%i,", finalnoun,finalverb);
+  printf("Answer : %i,", output);
   return 0;
 }
