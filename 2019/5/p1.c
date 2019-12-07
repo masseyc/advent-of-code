@@ -45,6 +45,11 @@ int opcode99() {
   return 0;
 }
 
+int getValue(int *program, int pc, int param) {
+
+  
+}
+
 int execute(int *program, int pc, int input) {
   while(1) {
     if(pc > 300){
