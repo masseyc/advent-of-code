@@ -3,6 +3,14 @@
 #include <string.h>
 #include <math.h>
 
+// prepend "0" as needed resulting in a string of _minimal_ width.
+void PrependZeros(char *dest, const char *src, unsigned minimal_width) {
+  size_t len = strlen(src);
+  size_t zeros = (len > minimal_width) ? 0 : minimal_width - len;
+  memset(dest, '0', zeros);
+  strcpy(dest + zeros, src);
+}
+
 int *cvt(char *input, int *level)
 {
     char *cp = strtok(input, ",");
@@ -56,8 +64,10 @@ void reverse(char s[])
 
 int getOpcode(int *program, int pc) {
   int opcode = program[pc];
-  char *opcodestr;
-  itoa(opcode, opcodestr);
+  char tmp[5];
+  char opcodestr[5];
+  itoa(opcode, tmp);
+  PrependZeros(opcodestr, tmp, 5);
   char opstr[3];
   opstr[0] = opcodestr[strlen(opcodestr)-2];
   opstr[1] = opcodestr[strlen(opcodestr)-1];
@@ -130,23 +140,28 @@ int opcode99() {
 
 int execute(int *program, int pc, int input) {
   while(1) {
+    int opcode = getOpcode(program, pc);
     if(pc > 300){
       break;
     }
-    if(program[pc] == 99) {
+    if(opcode == 99) {
       break;
     }
-    else if(program[pc] == 1 ) {
+    else if(opcode == 1 ) {
 
       opcode1(program, pc);
 
     }
-    else if(program[pc]  == 2) {   
+    else if(opcode  == 2) {   
 
       opcode2(program, pc);
 
-    } else if(program[pc] == 3) {
+    } else if(opcode == 3) {
       opcode3(program, input, program[pc+2]);
+
+    } else if(opcode == 4) {
+      opcode4(program, pc);
+
     }
 
     pc = pc + 4;
@@ -193,47 +208,14 @@ int main(int argc, char *argv[])
     backup[loop] = program[loop];
   }
 
-//  for(noun = 0; noun < 100; noun++) {
-//    for(verb = 0; verb < 100;verb++) {
-//      program[1] = noun;
-//      program[2] = verb;
-/*
-  while(1) {
-    if(pc > 300){
-      break;
-    }
-    if(program[pc] == 99) {
-      break;
-    }
-    else if(program[pc] == 1 ) {
-
-      opcode1(program, program[pc+1], program[pc+2], program[pc+3]);
-
-    }
-    else if(program[pc]  == 2) {   
-
-        opcode2(program, program[pc+1], program[pc+2], program[pc+3]);
-
-    }
-
-    pc = pc + 4;
-  
-      }
-      pc = 0;
-
-
-//      printf("Result : %i\n", program[0]);
-*/
 
   int output = execute(program, pc, input);
 
-      n_array = 0;
-      for(loop = 0; loop < 300; loop++) {
-        program[loop] = backup[loop];
-      }
-//    }
-//  }
+  n_array = 0;
+  for(loop = 0; loop < 300; loop++) {
+    program[loop] = backup[loop];
+  }
 
-  printf("Answer : %i,", output);
+  printf("Answer : %i\n", output);
   return 0;
 }
