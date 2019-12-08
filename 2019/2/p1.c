@@ -26,6 +26,7 @@ int *cvt(char *input, int *level)
 }
 
 void opcode1(int *program, int pos1, int pos2, int pos3) {
+  printf("%i", program[pos1] + program[pos2]);
   program[pos3] = program[pos1] + program[pos2];
 }
 
