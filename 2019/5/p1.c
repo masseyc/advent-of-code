@@ -82,12 +82,13 @@ int getOpcode(int *program, int pc) {
 int getMode(int *program, int pc, int param) {
   int opcode = program[pc];
   int nDigits = floor(log10(abs(opcode))) + 1;
+  char tmp[5];
   char opcodestr[5];
-  itoa(opcode, opcodestr);
-
+  itoa(opcode, tmp);
+  PrependZeros(opcodestr, tmp, 5);
   if(nDigits == 2) {
     return 0;
-  } else if(nDigits == 4 && opcodestr[strlen(opcodestr)-param-2] == '1') {
+  } else if(opcodestr[3-param] == '1') {
     return 1;
   } else
   {
@@ -107,18 +108,28 @@ int getValue(int *program, int pc, int param) {
   
 }
 
-void writevalue(int *program, int pc, int value, int param) {
+void printProgram(int *program) {
+  for(int i = 0; i < 100; i++) {
+    printf("%i, ", program[i]);
+  }
+  printf("\n");
+}
+
+int writevalue(int *program, int pc, int value, int param) {
   int mode = getMode(program, pc, param);
   if(mode == 1 ) {
-
+    printf("Write Abort: Mode 1\n");
+    return 1;
   } else {
     program[program[pc+param]] = value;
+    return 0;
   }
 }
 
 void opcode1(int *program, int pc) {
   int value = getValue(program, pc, 1) + getValue(program, pc, 2);
   writevalue(program, pc , value, 3);
+  //printf("val: %i\n", program[program[pc+3]]);
   
 }
 
@@ -134,37 +145,101 @@ void opcode4(int *program, int pc ) {
   printf("Output: %i\n", getValue(program, pc, 1));
 }
 
-int opcode99() {
-  return 0;
+int opcode5(int *program, int pc) {
+  if (getValue(program, pc, 1) == 0) {
+    return pc+3;
+  } else {
+    return getValue(program, pc, 2);
+  }
+}
+
+int opcode6(int *program, int pc) {
+  if (getValue(program, pc, 1) == 0) {
+    return getValue(program, pc, 2);
+  } else {
+    return pc+3;
+    
+  }
+}
+
+void opcode7(int *program, int pc) {
+  if(getValue(program, pc, 1) < getValue(program, pc, 2)) {
+    program[program[pc+3]] = 1;
+  } else {
+    program[program[pc+3]] = 0;
+  }
+}
+
+void opcode8(int *program, int pc) {
+  if(getValue(program, pc, 1) == getValue(program, pc, 2)) {
+    program[program[pc+3]] = 1;
+  } else {
+    program[program[pc+3]] = 0;
+  }
 }
 
 int execute(int *program, int pc, int input) {
   while(1) {
+  //  printf("%i\n", pc);
     int opcode = getOpcode(program, pc);
-    if(pc > 300){
+    //printProgram(program);
+    //printf("PC: %i\n Val: %i\n", pc, program[pc]);
+    //int tmp = program[pc+2];
+    //printf("%i \n", tmp);
+    //printf("opcode: %i %i %i %i %i \n", pc, program[pc], program[pc+1], getValue(program, pc, 2), program[pc+3]);
+
+    if(pc > 3000){
+      printf("Program Count Exception!\n");
       break;
     }
     if(opcode == 99) {
+      printf("OpCode 99 Exit!!!\n");
       break;
     }
     else if(opcode == 1 ) {
-
+      //addition
       opcode1(program, pc);
-
+      pc = pc + 4;
     }
     else if(opcode  == 2) {   
-
+      //multiply
       opcode2(program, pc);
+      pc = pc + 4;
 
     } else if(opcode == 3) {
-      opcode3(program, input, program[pc+2]);
+
+      opcode3(program, input, program[pc+1]);
+      pc = pc + 2;
 
     } else if(opcode == 4) {
       opcode4(program, pc);
+      pc = pc + 2;
 
+    } else if(opcode == 5) {
+
+      pc = opcode5(program, pc);
+
+    } else if(opcode == 6) {
+
+      pc = opcode6(program, pc);
+
+    } else if(opcode == 7) {
+
+      opcode7(program, pc);
+      pc = pc + 4;
+
+    } else if(opcode == 8) {
+
+      opcode8(program, pc);
+      pc = pc + 4;
+
+    } else {
+      printf("%i \n", program[274]);
+      printf("Error: %i %i %i %i %i \n", pc, program[pc], program[pc+1], getValue(program, pc, 2), program[pc+3]);
+      break;
     }
 
-    pc = pc + 4;
+
   }
   return program[0];
 }
@@ -172,6 +247,7 @@ int execute(int *program, int pc, int input) {
 
 int main(int argc, char *argv[])
 {
+  
   int input;
   if (argc > 1) {
     input = (int) strtol(argv[1], (char **)NULL, 10);
@@ -180,7 +256,7 @@ int main(int argc, char *argv[])
   }
   FILE *ifp;
   char *mode = "r";
-  char currentline[1000];
+  char currentline[4000];
 
   ifp = fopen("input.list", mode);
 
@@ -207,10 +283,11 @@ int main(int argc, char *argv[])
   for(loop = 0; loop < sizeof(currentline); loop++) {
     backup[loop] = program[loop];
   }
-
+ // program[0] = 101;
+ // printf("%i %i",getMode(program, pc, 1), getMode(program, pc, 2));
+ // exit(0);
 
   int output = execute(program, pc, input);
-
   n_array = 0;
   for(loop = 0; loop < 300; loop++) {
     program[loop] = backup[loop];
