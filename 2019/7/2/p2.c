@@ -73,8 +73,8 @@ void reverse(char s[])
      reverse(s);
 } 
 
-int64_t getOpcode(int64_t *program, int64_t pc) {
-  int64_t opcode = program[(int) pc];
+int getOpcode(int64_t *program, int pc) {
+  int opcode = program[(int) pc];
   char tmp[5];
   char opcodestr[5];
   itoa(opcode, tmp);
@@ -90,9 +90,9 @@ int64_t getOpcode(int64_t *program, int64_t pc) {
 
 
 
-int64_t getMode(int64_t *program, int64_t pc, int64_t param) {
-  int64_t opcode = program[(int) pc];
-  int64_t nDigits = floor(log10(abs(opcode))) + 1;
+int getMode(int64_t *program, int pc, int param) {
+  int opcode = program[(int) pc];
+  int nDigits = floor(log10(abs(opcode))) + 1;
   char tmp[5];
   char opcodestr[5];
   itoa(opcode, tmp);
@@ -154,7 +154,7 @@ void opcode3(int64_t *program, int64_t input, int64_t par1) {
 
 int64_t opcode4(int64_t *program, int64_t pc ) {
   int64_t val = getValue(program, pc, 1);
-  printf("Output: %i\n", val);
+  //("Output: %i\n", val);
   return val;
 
 }
@@ -192,10 +192,10 @@ void opcode8(int64_t *program, int64_t pc) {
   }
 }
 
-int64_t execute(int64_t *program, int64_t pc, cbuf_handle_t input, cbuf_handle_t output) {
+int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t output) {
   while(1) {
   //  printf("%i\n", pc);
-    int64_t opcode = getOpcode(program, pc);
+    int opcode = getOpcode(program, pc);
     
     //printProgram(program);
     //printf("PC: %i\n Val: %i\n", pc, program[pc]);
@@ -209,7 +209,7 @@ int64_t execute(int64_t *program, int64_t pc, cbuf_handle_t input, cbuf_handle_t
     }
     if(opcode == 99) {
       printf("OpCode 99 Exit!!!\n");
-      return opcode;
+      return 0;
     }
     else if(opcode == 1 ) {
       //addition
@@ -224,7 +224,7 @@ int64_t execute(int64_t *program, int64_t pc, cbuf_handle_t input, cbuf_handle_t
     } else if(opcode == 3) {
       int64_t val = 0;
       circular_buf_get(input, &val);
-      printf("\n%i %i\n", pc+1, program[(int) pc+1]);
+      //printf("\n%i %i\n", pc+1, program[(int) pc+1]);
       int64_t dest = program[(int) pc+1];
       opcode3(program, val, dest);
       pc = pc + 2;
@@ -234,7 +234,7 @@ int64_t execute(int64_t *program, int64_t pc, cbuf_handle_t input, cbuf_handle_t
       int64_t val;
       val = opcode4(program, pc-2);
       circular_buf_put(output, val);
-      break;
+      return val;
 
     } else if(opcode == 5) {
 
@@ -255,14 +255,13 @@ int64_t execute(int64_t *program, int64_t pc, cbuf_handle_t input, cbuf_handle_t
       pc = pc + 4;
 
     } else {
-      printf("%i \n", program[274]);
       printf("Error: %i %i %i %i %i \n", pc, program[(int) pc], program[(int) pc+1], getValue(program, pc, 2), program[pc+3]);
-      break;
+      exit(1);
     }
 
 
   }
-  return pc;
+  return 0;
 }
 
 
@@ -274,6 +273,7 @@ int main(int argc, char *argv[])
     input = (int64_t) strtol(argv[1], (char **)NULL, 10);
   } else {
 //    exit(1);
+
   }
 
   FILE *ifp;
@@ -325,19 +325,19 @@ int main(int argc, char *argv[])
   fclose(ifp);
   int64_t n_array = 0;
 
-  int64_t pc = 0;
-  int64_t pc1 = 0;
-  int64_t pc2 = 0;
-  int64_t pc3 = 0;
-  int64_t pc4 = 0;
-  int64_t pc5 = 0;
+  int pc = 0;
+  int pc1 = 0;
+  int pc2 = 0;
+  int pc3 = 0;
+  int pc4 = 0;
+  int pc5 = 0;
   int64_t noun;
   int64_t verb;
   int64_t finalnoun = 0;
   int64_t finalverb = 0;
 //  int64_t result = 0;
   program = cvt(currentline, &n_array);
-  int64_t loop;
+  int loop;
   for(loop = 0; loop < memalloc; loop++) {
   // printf("loop: %i\n", loop);
   //  printf("%i \n", program[loop]);
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
  // program[0] = 101;
  // printf("%i %i",getMode(program, pc, 1), getMode(program, pc, 2));
  // exit(0);
-  int64_t maxstate[5];
+  int maxstate[5];
   int64_t output;
   int64_t maxoutput = 0;
  
@@ -380,14 +380,14 @@ int main(int argc, char *argv[])
   print_buffer_status(cbuf5);
 
 
-  int64_t b = 5;
-  int64_t x = 10;
+  int b = 5;
+  int x = 10;
   output = 0;
-  for(int64_t i = b; i<x;i++) {
-    for(int64_t j = b; j<x;j++) {
-      for(int64_t k = b; k<x;k++) {
-        for(int64_t l = b; l<x;l++) {
-          for(int64_t m = b; m<x;m++) {
+  for(int i = b; i<x;i++) {
+    for(int j = b; j<x;j++) {
+      for(int k = b; k<x;k++) {
+        for(int l = b; l<x;l++) {
+          for(int m = b; m<x;m++) {
             if(i != j && i != k && i != l && i != m) {
               if(j != k && j != l && j != m) {
                 if(k != l && k != m) {
@@ -399,16 +399,26 @@ int main(int argc, char *argv[])
                     circular_buf_put(cbuf3, k);
                     circular_buf_put(cbuf4, l);
                     circular_buf_put(cbuf5, m);
+                    print_buffer_status(cbuf1);
+                    print_buffer_status(cbuf2);
+                    print_buffer_status(cbuf3);
+                    print_buffer_status(cbuf4);
+                    print_buffer_status(cbuf5);
 
 
                     while(1) {
                     
                     output = execute(runtime1, pc1, cbuf1, cbuf2);
+
                     output = execute(runtime2, pc2, cbuf2, cbuf3);
+
                     output = execute(runtime3, pc3, cbuf3, cbuf4);
+
                     output = execute(runtime4, pc4, cbuf4, cbuf5);
+
                     output = execute(runtime5, pc5, cbuf5, cbuf1);
-                    printf("MAXIMUM: %i %i %i %i %i %i\n", output, i, j, k, l, m);
+                    //printf("MAXIMUM: %i %i %i %i %i %i\n", output, i, j, k, l, m);
+
                     if(output > maxoutput) {
                       maxoutput = output;
                       maxstate[0] = i;
