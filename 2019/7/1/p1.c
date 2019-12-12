@@ -352,6 +352,7 @@ int main(int argc, char *argv[])
               if(j != k && j != l && j != m) {
                 if(k != l && k != m) {
                   if(l != m) {
+                    
             input = 0;
             pc = 0;
             output = execute(runtime1, pc, i, input);
