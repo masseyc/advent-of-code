@@ -192,7 +192,8 @@ void opcode8(int64_t *program, int64_t pc) {
   }
 }
 
-int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t output) {
+int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t output, char *amp) {
+ // printf("%s\n", amp,"");
   while(1) {
   //  printf("%i\n", pc);
     int opcode = getOpcode(program, pc);
@@ -202,6 +203,7 @@ int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t out
     //int64_t tmp = program[pc+2];
     //printf("%i \n", tmp);
     //printf("opcode: %i %i %i %i %i \n", pc, program[pc], program[pc+1], getValue(program, pc, 2), program[pc+3]);
+    //printf("%i %i\n", pc, program[pc]);
 
     if(pc > 3000){
       printf("Program Count Exception!\n");
@@ -209,7 +211,7 @@ int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t out
     }
     if(opcode == 99) {
       printf("OpCode 99 Exit!!!\n");
-      return 0;
+      return 99;
     }
     else if(opcode == 1 ) {
       //addition
@@ -231,8 +233,10 @@ int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t out
 
     } else if(opcode == 4) {
       pc = pc + 2;
-      int64_t val;
+      int64_t val = 0;
+      
       val = opcode4(program, pc-2);
+ //     printf("%i\n",val);
       circular_buf_put(output, val);
       return val;
 
@@ -354,6 +358,11 @@ int main(int argc, char *argv[])
  // exit(0);
   int maxstate[5];
   int64_t output;
+  int outputA = 0;
+  int outputB = 0;
+  int outputC = 0;
+  int outputD = 0;
+  int outputE = 0;
   int64_t maxoutput = 0;
  
   int64_t BUFFER_SIZE = 10;
@@ -392,6 +401,7 @@ int main(int argc, char *argv[])
               if(j != k && j != l && j != m) {
                 if(k != l && k != m) {
                   if(l != m) {
+                    printf("%i\n", l);
 
                     circular_buf_put(cbuf1, i);
                     circular_buf_put(cbuf1, 0);
@@ -408,19 +418,25 @@ int main(int argc, char *argv[])
 
                     while(1) {
                     
-                    output = execute(runtime1, pc1, cbuf1, cbuf2);
+                    outputA = execute(runtime1, pc1, cbuf1, cbuf2, "A");
 
-                    output = execute(runtime2, pc2, cbuf2, cbuf3);
+                    outputB = execute(runtime2, pc2, cbuf2, cbuf3, "B");
 
-                    output = execute(runtime3, pc3, cbuf3, cbuf4);
+                    outputC = execute(runtime3, pc3, cbuf3, cbuf4, "C");
 
-                    output = execute(runtime4, pc4, cbuf4, cbuf5);
+                    outputD = execute(runtime4, pc4, cbuf4, cbuf5, "D");
 
-                    output = execute(runtime5, pc5, cbuf5, cbuf1);
-                    //printf("MAXIMUM: %i %i %i %i %i %i\n", output, i, j, k, l, m);
+                    outputE = execute(runtime5, pc5, cbuf5, cbuf1, "E");
+                    printf("MAXIMUM: %i %i %i %i %i %i\n", outputE, i, j, k, l, m);
 
-                    if(output > maxoutput) {
-                      maxoutput = output;
+                    if(outputE == 99) {
+                      uint64_t data = 0;
+                      circular_buf_get(cbuf1, &data);
+                      printf("%i", data);
+                      break;
+                    }
+                    if(outputE > maxoutput) {
+                      maxoutput = outputE;
                       maxstate[0] = i;
                       maxstate[1] = j;
                       maxstate[2] = k;
@@ -428,14 +444,15 @@ int main(int argc, char *argv[])
                       maxstate[4] = m;
                       
                     }
-                    if(output == 99) {
-                      break;
+
                     }
-                    }
+
                     }}}}
             output = 0;
 
-  }}}}}
+  }}}}
+  printf("%i\n", i);
+  }
   n_array = 0;
 //  for(loop = 0; loop < 300; loop++) {
 //    program[loop] = backup[loop];
