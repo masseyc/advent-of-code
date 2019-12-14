@@ -152,8 +152,8 @@ void opcode3(int64_t *program, int64_t input, int64_t par1) {
   program[(int) par1] = input;
 }
 
-int64_t opcode4(int64_t *program, int64_t pc ) {
-  int64_t val = getValue(program, pc, 1);
+int opcode4(int64_t *program, int64_t pc ) {
+  int val = getValue(program, pc, 1);
   //("Output: %i\n", val);
   return val;
 
@@ -177,11 +177,13 @@ int64_t opcode6(int64_t *program, int64_t pc) {
 }
 
 void opcode7(int64_t *program, int64_t pc) {
-  if(getValue(program, pc, 1) < getValue(program, pc, 2)) {
+  if((int) getValue(program, pc, 1) < (int) getValue(program, pc, 2)) {
+    
     program[(int) program[(int) pc+3]] = 1;
   } else {
     program[(int) program[(int) pc+3]] = 0;
   }
+  //printf("%i %i\n", getValue(program, pc, 1) ,getValue(program, pc, 2));
 }
 
 void opcode8(int64_t *program, int64_t pc) {
@@ -192,7 +194,7 @@ void opcode8(int64_t *program, int64_t pc) {
   }
 }
 
-int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t output, char *amp) {
+int execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t output, char *amp) {
  // printf("%s\n", amp,"");
   while(1) {
   //  printf("%i\n", pc);
@@ -204,6 +206,7 @@ int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t out
     //printf("%i \n", tmp);
     //printf("opcode: %i %i %i %i %i \n", pc, program[pc], program[pc+1], getValue(program, pc, 2), program[pc+3]);
     //printf("%i %i\n", pc, program[pc]);
+    printf("%i %i %i %i %i\n", pc, program[pc], program[pc+1], program[pc+2], program[pc+3]);
 
     if(pc > 3000){
       printf("Program Count Exception!\n");
@@ -211,6 +214,7 @@ int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t out
     }
     if(opcode == 99) {
       printf("OpCode 99 Exit!!!\n");
+      exit(1);
       return 99;
     }
     else if(opcode == 1 ) {
@@ -262,6 +266,10 @@ int64_t execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t out
       printf("Error: %i %i %i %i %i \n", pc, program[(int) pc], program[(int) pc+1], getValue(program, pc, 2), program[pc+3]);
       exit(1);
     }
+
+     //   printProgram(program);
+    //printf("%i", program[52]);
+   // getchar();
 
 
   }
@@ -392,19 +400,19 @@ int main(int argc, char *argv[])
   int b = 5;
   int x = 10;
   output = 0;
-  for(int i = b; i<x;i++) {
-    for(int j = b; j<x;j++) {
-      for(int k = b; k<x;k++) {
-        for(int l = b; l<x;l++) {
-          for(int m = b; m<x;m++) {
+  for(int i = 9; i<x;i++) {
+    for(int j = 7; j<x;j++) {
+      for(int k = 8; k<x;k++) {
+        for(int l = 5; l<x;l++) {
+          for(int m = 6; m<x;m++) {
             if(i != j && i != k && i != l && i != m) {
               if(j != k && j != l && j != m) {
                 if(k != l && k != m) {
                   if(l != m) {
                     printf("%i\n", l);
+                   circular_buf_put(cbuf1, 0);
 
                     circular_buf_put(cbuf1, i);
-                    circular_buf_put(cbuf1, 0);
                     circular_buf_put(cbuf2, j);
                     circular_buf_put(cbuf3, k);
                     circular_buf_put(cbuf4, l);
@@ -417,24 +425,23 @@ int main(int argc, char *argv[])
 
 
                     while(1) {
-                    
-                    outputA = execute(runtime1, pc1, cbuf1, cbuf2, "A");
-
+                    if(outputA != 99) {
+                      outputA = execute(runtime1, pc1, cbuf1, cbuf2, "A");
+                    }
+                    if(outputB != 99) {
                     outputB = execute(runtime2, pc2, cbuf2, cbuf3, "B");
-
+                    }
+                    if(outputC != 99) {
                     outputC = execute(runtime3, pc3, cbuf3, cbuf4, "C");
-
+                    } if(outputD != 99) {
                     outputD = execute(runtime4, pc4, cbuf4, cbuf5, "D");
+                    }if(outputE != 99) {
 
                     outputE = execute(runtime5, pc5, cbuf5, cbuf1, "E");
+                    }
                     printf("MAXIMUM: %i %i %i %i %i %i\n", outputE, i, j, k, l, m);
 
-                    if(outputE == 99) {
-                      uint64_t data = 0;
-                      circular_buf_get(cbuf1, &data);
-                      printf("%i", data);
-                      break;
-                    }
+
                     if(outputE > maxoutput) {
                       maxoutput = outputE;
                       maxstate[0] = i;
@@ -444,8 +451,30 @@ int main(int argc, char *argv[])
                       maxstate[4] = m;
                       
                     }
+                    printf("OutputE %i\n", outputE);
+                    print_buffer_status(cbuf1);
+                    if(outputE == 99) {
 
+                      break;
                     }
+                    }
+                    pc1=0;pc2=0;pc3=0;pc4=0;pc5=0;
+                      for(loop = 0; loop < memalloc; loop++) {
+                        runtime1[loop] = program[loop];
+                        runtime2[loop] = program[loop];
+                        runtime3[loop] = program[loop];
+                        runtime4[loop] = program[loop];
+                        runtime5[loop] = program[loop];
+
+                      }
+
+                    circular_buf_reset(cbuf1);
+                    circular_buf_reset(cbuf2);
+                    circular_buf_reset(cbuf3);
+                    circular_buf_reset(cbuf4);
+                    circular_buf_reset(cbuf5);
+
+                    
 
                     }}}}
             output = 0;
