@@ -7,7 +7,7 @@
 
 // The definition of our circular buffer structure is hidden from the user
 struct circular_buf_t {
-	int64_t * buffer;
+	int * buffer;
 	size_t head;
 	size_t tail;
 	size_t max; //of the buffer
@@ -41,7 +41,7 @@ static void retreat_pointer(cbuf_handle_t cbuf)
 
 #pragma mark - APIs -
 
-cbuf_handle_t circular_buf_init(int64_t* buffer, size_t size)
+cbuf_handle_t circular_buf_init(int* buffer, size_t size)
 {
 	assert(buffer && size);
 
@@ -101,7 +101,7 @@ size_t circular_buf_capacity(cbuf_handle_t cbuf)
 	return cbuf->max;
 }
 
-void circular_buf_put(cbuf_handle_t cbuf, int64_t data)
+void circular_buf_put(cbuf_handle_t cbuf, int data)
 {
 	assert(cbuf && cbuf->buffer);
 
@@ -110,7 +110,7 @@ void circular_buf_put(cbuf_handle_t cbuf, int64_t data)
     advance_pointer(cbuf);
 }
 
-int circular_buf_put2(cbuf_handle_t cbuf, int64_t data)
+int circular_buf_put2(cbuf_handle_t cbuf, int data)
 {
     int r = -1;
 
@@ -126,7 +126,7 @@ int circular_buf_put2(cbuf_handle_t cbuf, int64_t data)
     return r;
 }
 
-int circular_buf_get(cbuf_handle_t cbuf, int64_t * data)
+int circular_buf_get(cbuf_handle_t cbuf, int * data)
 {
     assert(cbuf && data && cbuf->buffer);
 
