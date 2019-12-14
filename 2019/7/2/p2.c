@@ -196,7 +196,8 @@ void opcode8(int64_t *program, int64_t pc) {
 
 int execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t output, char *amp) {
  // printf("%s\n", amp,"");
-  while(1) {
+ bool is_halted = false;
+  while(!is_halted) {
   //  printf("%i\n", pc);
     int opcode = getOpcode(program, pc);
     
@@ -214,8 +215,7 @@ int execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t output,
     }
     if(opcode == 99) {
       printf("OpCode 99 Exit!!!\n");
-      exit(1);
-      return 99;
+      is_halted = true;
     }
     else if(opcode == 1 ) {
       //addition
@@ -273,7 +273,7 @@ int execute(int64_t *program, int pc, cbuf_handle_t input, cbuf_handle_t output,
 
 
   }
-  return 0;
+  return 99;
 }
 
 
@@ -343,11 +343,8 @@ int main(int argc, char *argv[])
   int pc3 = 0;
   int pc4 = 0;
   int pc5 = 0;
-  int64_t noun;
-  int64_t verb;
-  int64_t finalnoun = 0;
-  int64_t finalverb = 0;
-//  int64_t result = 0;
+
+
   program = cvt(currentline, &n_array);
   int loop;
   for(loop = 0; loop < memalloc; loop++) {
