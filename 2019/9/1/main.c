@@ -40,7 +40,7 @@ void PrependZeros(char *dest, const char *src, unsigned minimal_width)
   strcpy(dest + zeros, src);
 }
 
-int64_t *cvt(char *input, int64_t *level)
+int64_t *cvt(char *input, int *level)
 {
   char *cp = strtok(input, ",");
   if (cp == NULL)
@@ -49,8 +49,8 @@ int64_t *cvt(char *input, int64_t *level)
     return (int64_t *)malloc(sizeof(int64_t) * *level);
   }
 
-  int64_t my_index = -1;
-  int64_t n;
+  int my_index = -1;
+  int n;
   if (sscanf(cp, "%d", &n) == 1)
   {
     my_index = *level;
@@ -70,7 +70,7 @@ int64_t *cvt(char *input, int64_t *level)
 
 void reverse(char s[])
 {
-  int64_t i, j;
+  int i, j;
   char c;
 
   for (i = 0, j = strlen(s) - 1; i < j; i++, j--)
@@ -81,9 +81,9 @@ void reverse(char s[])
   }
 }
 
-void itoa(int64_t n, char s[])
+void itoa(int n, char s[])
 {
-  int64_t i, sign;
+  int i, sign;
 
   if ((sign = n) < 0) /* record sign */
     n = -n;           /* make n positive */
@@ -98,7 +98,7 @@ void itoa(int64_t n, char s[])
   reverse(s);
 }
 
-int64_t getOpcode(Computer *program, int pc)
+int getOpcode(Computer *program, int pc)
 {
   int64_t opcode = program->program[(int)pc];
   char tmp[5];
@@ -110,6 +110,17 @@ int64_t getOpcode(Computer *program, int pc)
   opstr[1] = opcodestr[strlen(opcodestr) - 1];
   opstr[2] = '\0';
   return atoi(opstr);
+}
+
+void printProgram(Computer *program)
+{
+  for (int i = 0; i < 100; i++)
+  {
+    printf("%i, ", program->program[(int)i]);
+  }
+  printf("\n");
+  printf("is_halted: %i\n", program->is_halted);
+  printf("rbase: %i\n", program->rbase);
 }
 
 int getMode(Computer *program, int pc, int param)
@@ -142,9 +153,14 @@ int64_t getValue(Computer *program, int pc, int param)
 {
   int mode = getMode(program, pc, param);
   int opcode = program->program[(int)pc];
+  //printf("Mode: %i\n", mode);
   if (mode == 0)
   {
-    return program->program[(int)program->program[(int)pc + param]];
+
+    int pcparam = pc+param;
+
+    int64_t val = program->program[program->program[pcparam]];
+    return val;
   }
   else if (mode == 2)
   {
@@ -152,20 +168,17 @@ int64_t getValue(Computer *program, int pc, int param)
   }
   else
   {
-    return program->program[(int)pc + param];
+    int pcparam = pc+param;
+
+   //printf("params: %lli %lli\n",program->program[pc+1], program->program[pc+2]);
+    //printf("pc+p: %i\n", pcparam);
+    //printf("5: %i\n", program->program[pcparam]);
+    //printf("\n");
+    return program->program[pcparam];
   }
 }
 
-void printProgram(Computer *program)
-{
-  for (int i = 0; i < 100; i++)
-  {
-    printf("%i, ", program->program[(int)i]);
-  }
-  printf("\n");
-  printf("is_halted: %i\n", program->is_halted);
-  printf("rbase: %i\n", program->rbase);
-}
+
 
 int64_t writevalue(Computer *program, int pc, int64_t value, int param)
 {
@@ -202,17 +215,26 @@ void opcode1(Computer *program, int pc)
 
 void opcode2(Computer *program, int pc)
 {
-  printf("%"PRId64" %"PRId64" %"PRId64" %"PRId64"\n", program->program[pc], program->program[pc+1], program->program[pc+2], program->program[pc+3]);
-  int64_t value = getValue(program, pc, 1) * getValue(program, pc, 2);
+  //printf("%"PRId64" %"PRId64" %"PRId64" %"PRId64"\n", program->program[pc], program->program[pc+1], program->program[pc+2], program->program[pc+3]);
+  //printf("%"PRId64"\n", getValue(program, pc, 1));
+  //printf("%"PRId64"\n", getValue(program, pc, 2));
+  //printProgram(program);
+  //printf("%i\n",pc+1);
+  //printf("%i \n", program->program[pc+1]);
 
+  int64_t value = getValue(program, pc, 1) * getValue(program, pc, 2);
+  
+  //printf("val: %lli\n", value);
   writevalue(program, pc, value, 3);
-  printf("%"PRId64"\n", program->program[63]);
+
+  //printf("%"PRId64"\n", program->program[63]);
 }
 
 void opcode3(Computer *program, int pc, int64_t input, int par1)
 {
   if (getMode(program, pc, 1) == 2)
   {
+    //printf("HERE!\n");
     program->program[(int) par1+program->rbase] = input;
   }
   else
@@ -254,15 +276,20 @@ int64_t opcode6(Computer *program, int pc)
 
 void opcode7(Computer *program, int pc)
 {
+  //printf("1: %lli\n",getValue(program,pc,1));
+  //printf("2: %lli\n",getValue(program,pc,2));
+  //printf("3: %lli\n",getValue(program,pc,3));
   if ((int64_t)getValue(program, pc, 1) < (int64_t)getValue(program, pc, 2))
   {
-
-    program->program[(int)getValue(program,pc,3)] = 1;
+    //printf("out: %lli\n", getValue(program,pc,3));
+    //program->program[(int)getValue(program,pc,3)] = 1;
+    writevalue(program,pc,1,3);
   }
   else
   {
-    //printf("%i\n",getValue(program,pc,3));
-    program->program[(int)getValue(program,pc,3)] = 0;
+    //printf("out: %lli\n", getValue(program,pc,3));
+    writevalue(program,pc,0,3);
+    //program->program[(int)getValue(program,pc,3)] = 0;
   }
   //printf("%i %i\n", getValue(program, pc, 1) ,getValue(program, pc, 2));
 }
@@ -272,12 +299,14 @@ void opcode8(Computer *program, int pc)
   if ((int64_t)getValue(program, pc, 1) == (int64_t)getValue(program, pc, 2))
   {
     //printf("%i %i %i\n",getValue(program, pc, 1), getValue(program, pc, 2), (int)getValue(program,pc,3));
-    program->program[(int)getValue(program,pc,3)] = 1;
+    //program->program[(int)getValue(program,pc,3)] = 1;
+    writevalue(program,pc,1,3);
   }
   else
   {
     //printf("%i %i %i\n",getValue(program, pc, 1), getValue(program, pc, 2), (int)getValue(program,pc,3));
-    program->program[(int)getValue(program,pc,3)] = 0;
+    //program->program[(int)getValue(program,pc,3)] = 0;
+    writevalue(program,pc,0,3);
   }
 }
 
@@ -294,14 +323,16 @@ int64_t execute(Computer *program, int *pc, cbuf_handle_t input, cbuf_handle_t o
   {
     //  printf("%i\n", pc);
     int opcode = getOpcode(program, *pc);
-
+    //printf("Opcode: %i\n", opcode);
     //printProgram(program);
     //printf("PC: %i\n Val: %i\n", pc, program[pc]);
     //int64_t tmp = program[pc+2];
     //printf("%i \n", tmp);
     //printf("opcode: %i %i %i %i %i \n", pc, program[pc], program[pc+1], getValue(program, pc, 2), program[pc+3]);
     //printf("%i %i\n", pc, program[pc]);
-    //printf("%i %"PRId64" %"PRId64" %"PRId64" %"PRId64"\n", *pc, program[*pc], program[*pc+1], program[*pc+2], program[*pc+3]);
+    //printf("pc: %i\n", *pc);
+    //printf("pro: %d\n", program->program[*pc]);
+    //printf("%i %d %llx %"PRId64" %"PRId64"\n", *pc, program->program[*pc], program->program[*pc+1], program->program[*pc+2], program->program[*pc+3]);
 
     if (*pc > 3000)
     {
@@ -384,13 +415,13 @@ int64_t execute(Computer *program, int *pc, cbuf_handle_t input, cbuf_handle_t o
   return 99;
 }
 
-int64_t main(int64_t argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  const int64_t memalloc = 16000;
-  int64_t input;
+  const int memalloc = 8000;
+  int input;
   if (argc > 1)
   {
-    input = (int64_t)strtol(argv[1], (char **)NULL, 10);
+    input = (int)strtol(argv[1], (char **)NULL, 10);
   }
   else
   {
@@ -427,7 +458,7 @@ int64_t main(int64_t argc, char *argv[])
 
   fgets(currentline, sizeof(currentline), ifp);
   fclose(ifp);
-  int64_t n_array = 0;
+  int n_array = 0;
 
   int *pc1 = calloc(1, sizeof(int));
 
@@ -442,7 +473,8 @@ int64_t main(int64_t argc, char *argv[])
     //    int64_t mp = program[loop];
     //    backup[loop] = mp;
     //printf("%i\n", loop);
-    runtime1->program[(int)loop] = program[(int)loop];
+    //printf("%lli\n",program[loop]);
+    runtime1->program[loop] = program[loop];
   }
   // program[0] = 101;
   // printf("%i %i",getMode(program, pc, 1), getMode(program, pc, 2));
@@ -466,7 +498,7 @@ int64_t main(int64_t argc, char *argv[])
 
   //printf("%i\n", l);
 
-  circular_buf_put(cbuf1, 1);
+  circular_buf_put(cbuf1, 2);
 
   outputA = execute(runtime1, pc1, cbuf1, cbuf1, "A");
 
