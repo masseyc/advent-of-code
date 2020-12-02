@@ -1,5 +1,5 @@
-package day1
+package main
 
-func Part1() {
+func main() {
 
 }
